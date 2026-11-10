@@ -1,20 +1,94 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Remember support</title><link rel="stylesheet" href="style.css"></head>
+<title>Remember - Private AI Memory for iPhone</title>
+<meta name="description" content="Save anything. Ask for it later in plain words. Answers come from Apple's on-device AI, so nothing you save ever leaves your iPhone.">
+<meta property="og:title" content="Remember - Private AI Memory">
+<meta property="og:description" content="Save anything. Ask for it later in plain words. Nothing leaves your iPhone.">
+<meta property="og:image" content="https://bounceback333.github.io/afford-it/remember/img/1-ask.jpg">
+<link rel="icon" href="img/icon.png">
+<link rel="stylesheet" href="style.css">
+<style>
+main{max-width:1040px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-top:20px}
+.hero h1{font-size:clamp(38px,6vw,60px);line-height:1.05;letter-spacing:-1.5px;margin:10px 0 16px}
+.lead{font-size:20px;color:var(--muted);margin:0 0 24px}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--bg);padding:14px 22px;border-radius:14px;text-decoration:none;font-weight:600}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.phone{width:100%;max-width:300px;justify-self:center;border-radius:42px;border:10px solid #111;box-shadow:0 30px 60px rgba(0,0,0,.18);display:block}
+.qs{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
+.qs span{background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:999px;font-size:15px}
+section{margin-top:72px}
+section>h2{font-size:30px;letter-spacing:-.5px;margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
+.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:15px}
+.shots{display:flex;gap:18px;overflow-x:auto;padding:8px 2px 18px;scroll-snap-type:x mandatory}
+.shots img{width:220px;flex:none;border-radius:28px;border:7px solid #111;scroll-snap-align:start}
+.price{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.price .card b{display:block;font-size:28px;margin:4px 0}
+.price .best{border:2px solid var(--accent)}
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+@media (max-width:760px){.hero{grid-template-columns:1fr}.grid,.price{grid-template-columns:1fr}.phone{max-width:240px}}
+</style></head>
 <body><main>
-<span class="mark"><i></i><i></i><i></i><b></b></span>
-<h1>Remember</h1>
-<p>Save anything. Ask for it later in plain words. Nothing leaves your iPhone.</p>
-<h2>Support</h2>
-<p>Email <a href="mailto:bmoney30253025@gmail.com?subject=Remember%20support">bmoney30253025@gmail.com</a> and include your iPhone model and what you were doing.</p>
-<h2>Common questions</h2>
-<p><strong>What can I save?</strong> Notes, voice notes, photos and screenshots, PDFs and other documents, links, emails and your calendar. From any app, tap Share, then Remember.</p>
-<p><strong>How do answers work?</strong> When you ask a question, Remember finds the memories that match it, then Apple's on-device language model reads them and writes a short answer. Each fact has a number that opens the memory it came from.</p>
-<p><strong>Which iPhones get written answers?</strong> iPhones that support Apple Intelligence (iPhone 15 Pro and later) with Apple Intelligence turned on in Settings. On other iPhones, Ask shows the closest matching memories instead, and everything else works the same.</p>
-<p><strong>Is anything uploaded?</strong> No. Search, reading text in photos, speech to text and answers all run on the iPhone. There are no accounts and no servers. Your memories are included in your encrypted iPhone backup.</p>
-<p><strong>The share sheet doesn't show Remember.</strong> In the share sheet, scroll the row of apps to the end, tap More, and turn Remember on. Items you share appear the next time you open the app.</p>
-<p><strong>What is free?</strong> Your first 25 memories, with unlimited questions about them. Premium keeps going: $9.99 a month, $49.99 a year with a 7-day free trial, or $129.99 once. Prices may differ outside the United States.</p>
-<p><strong>Can I get my data out?</strong> Yes, always. Settings → Export everything makes a zip of every file plus a text file of every word.</p>
-<p><strong>How do I cancel?</strong> Subscriptions are managed by Apple: Settings → your name → Subscriptions on your iPhone.</p>
-<p><a href="privacy.html">Privacy policy</a></p>
+<div class="hero">
+  <div>
+    <span class="mark"><i></i><i></i><i></i><b></b></span>
+    <h1>Your phone already has the answer.</h1>
+    <p class="lead">Save anything. Ask for it later in plain words. Remember answers from what you saved, with Apple's on-device AI. Nothing leaves your iPhone.</p>
+    <a class="cta" href="https://apps.apple.com/us/search?term=Remember%20Private%20AI%20Memory">Get it on the App Store</a>
+    <p class="note">Free for your first 25 memories. iOS 26. Written answers need Apple Intelligence (iPhone 15 Pro or later).</p>
+    <div class="qs">
+      <span>“What did the plumber quote?”</span><span>“When's the dentist?”</span><span>“What did I spend at Menards?”</span><span>“Draft a reply to Taylor.”</span>
+    </div>
+  </div>
+  <img class="phone" src="img/1-ask.jpg" alt="Remember answering questions from saved notes">
+</div>
+
+<section>
+  <h2>Save it once. Find it forever.</h2>
+  <p class="lead">Every way something lands on your phone, Remember can keep.</p>
+  <div class="grid">
+    <div class="card"><h3>Voice</h3><p>Talk on the way home. Every word is written down on the iPhone.</p></div>
+    <div class="card"><h3>Photos and screenshots</h3><p>Receipts, whiteboards, labels, text threads. The text in them becomes searchable.</p></div>
+    <div class="card"><h3>PDFs and documents</h3><p>Estimates, contracts, manuals. Read and indexed when you add them.</p></div>
+    <div class="card"><h3>Links and emails</h3><p>Share from Safari, Mail or any app. Add a note about why it matters.</p></div>
+    <div class="card"><h3>Your calendar</h3><p>Ask what's coming up. Get a morning brief before the day starts.</p></div>
+    <div class="card"><h3>Siri and the Action button</h3><p>“Hey Siri, save to Remember.” “Hey Siri, ask Remember.” Hands-free.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>See it</h2>
+  <div class="shots">
+    <img src="img/1-ask.jpg" alt="Answers with sources"><img src="img/2-draft.jpg" alt="Draft a reply"><img src="img/3-memories.jpg" alt="Every memory in one place"><img src="img/4-receipt.jpg" alt="Text read from a receipt photo"><img src="img/5-add.jpg" alt="Ways to add">
+  </div>
+</section>
+
+<section>
+  <h2>Nothing leaves your iPhone.</h2>
+  <div class="grid">
+    <div class="card"><h3>No account</h3><p>Open it and start. There's nothing to sign up for.</p></div>
+    <div class="card"><h3>No cloud</h3><p>Search, reading text, speech to text and answers all run on the iPhone.</p></div>
+    <div class="card"><h3>Yours to take</h3><p>Export everything as plain files any time. Deleting is one tap.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Pricing</h2>
+  <div class="price">
+    <div class="card"><h3>Monthly</h3><b>$9.99</b><p>per month</p></div>
+    <div class="card best"><h3>Yearly</h3><b>$49.99</b><p>per year, 7-day free trial</p></div>
+    <div class="card"><h3>Lifetime</h3><b>$129.99</b><p>once</p></div>
+  </div>
+  <p class="note">Your first 25 memories are free, with unlimited questions about them.</p>
+</section>
+
+<footer>
+  <p>Remember is made by Brenden Buskirk. <a href="privacy.html">Privacy</a> · <a href="mailto:bmoney30253025@gmail.com?subject=Remember%20support">Support</a> · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Terms</a></p>
+  <h2 style="font-size:19px;margin-top:28px">Common questions</h2>
+  <p><strong>Which iPhones get written answers?</strong> iPhone 15 Pro and later with Apple Intelligence on. Other iPhones get the closest matching memories instead.</p>
+  <p><strong>The share sheet doesn't show Remember.</strong> Scroll the row of apps to the end, tap More, and turn Remember on.</p>
+  <p><strong>How do I cancel?</strong> Settings → your name → Subscriptions on your iPhone.</p>
+</footer>
 </main></body></html>
