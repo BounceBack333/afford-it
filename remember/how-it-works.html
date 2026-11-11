@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Remember Works - Private AI on Your iPhone</title>
+<meta name="description" content="A private search engine and an AI writer, both running on your iPhone. What happens to the things you save, step by step, and why there's no server.">
+<meta property="og:title" content="How Remember works">
+<meta property="og:description" content="A private search engine and an AI writer, both on your iPhone. No server, no account, no third-party code.">
+<meta property="og:image" content="https://bounceback333.github.io/afford-it/remember/img/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="800">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://bounceback333.github.io/afford-it/remember/img/og.jpg">
+<link rel="icon" href="img/icon.png">
+<link rel="stylesheet" href="style.css">
+<style>
+main{max-width:1000px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.top a{font-size:15px;text-decoration:none}
+.top .mark{margin-bottom:0}
+.intro{margin-top:22px}
+.intro h1{font-size:clamp(36px,5.6vw,56px);line-height:1.05;letter-spacing:-1.4px;margin:8px 0 14px}
+.lead{font-size:20px;color:var(--muted);margin:0 0 8px;max-width:720px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:32px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.stat b{display:block;font-size:26px;letter-spacing:-.5px;line-height:1.15;margin-bottom:4px}
+.stat span{color:var(--muted);font-size:14px;line-height:1.45;display:block}
+.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:40px;counter-reset:step}
+.flow a{position:relative;display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 16px}
+.flow a::before{counter-increment:step;content:counter(step);display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:13px;font-weight:700;margin-bottom:8px}
+.flow a:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:6px;height:6px;border-top:2px solid var(--muted);border-right:2px solid var(--muted);transform:translateY(-50%) rotate(45deg);opacity:.6}
+.flow b{display:block;font-size:16px}
+.flow span{display:block;color:var(--muted);font-size:13px;line-height:1.4;margin-top:2px}
+.flow a:hover{border-color:var(--accent)}
+section{margin-top:76px;scroll-margin-top:24px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);margin:0}
+section>h2{font-size:30px;letter-spacing:-.5px;margin:6px 0 8px;line-height:1.2}
+section>.lead{font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.grid.two{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
+.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:15px}
+.aside{margin-top:18px;padding:16px 20px;border-left:3px solid var(--accent);background:var(--card);border-radius:0 14px 14px 0;font-size:15px;color:var(--muted)}
+.aside strong{color:var(--ink)}
+.trace{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center;margin-top:22px}
+.trace ol{list-style:none;margin:0;padding:0;counter-reset:t}
+.trace li{position:relative;padding:0 0 22px 44px;counter-increment:t}
+.trace li::before{content:counter(t);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-size:14px;font-weight:700}
+.trace li:not(:last-child)::after{content:"";position:absolute;left:14px;top:32px;bottom:4px;width:2px;background:var(--line)}
+.trace li b{display:block}
+.trace li span{color:var(--muted);font-size:15px}
+.q{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 14px;font-size:15px;margin-top:6px}
+.a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:15px;margin-top:6px}
+.a sup{color:var(--accent);font-weight:700}
+.trace img{width:100%;max-width:300px;justify-self:center;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.12)}
+.list{margin:22px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.list li{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;font-size:15px;color:var(--muted)}
+.list li b{color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chips span{background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:999px;font-size:14px}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--bg);padding:14px 22px;border-radius:14px;text-decoration:none;font-weight:600;margin-top:8px}
+.end{text-align:center}
+.end .lead{margin:0 auto 18px}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+@media (max-width:860px){.flow{grid-template-columns:repeat(3,1fr)}.flow a:nth-child(3)::after{display:none}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.flow{grid-template-columns:repeat(2,1fr)}.flow a::after{display:none}.grid,.grid.two,.trace{grid-template-columns:1fr}.trace img{max-width:240px}section{margin-top:60px}.stats{gap:10px}.stat{padding:14px}.stat b{font-size:19px}.stat span{font-size:13px}section>h2{font-size:26px}}
+</style></head>
+<body><main>
+
+<div class="top">
+  <a href="./" aria-label="Remember home"><span class="mark"><i></i><i></i><i></i><b></b></span></a>
+  <a href="./">← Remember</a>
+</div>
+
+<div class="intro">
+  <h1>How Remember works</h1>
+  <p class="lead">Remember is a private search engine and a small AI writer. Both run on your iPhone. Here's what happens to the things you save, step by step.</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><b>No server</b><span>No account and no cloud of ours. There is nothing for the app to connect to.</span></div>
+  <div class="stat"><b>No third-party code</b><span>Built only on Apple's frameworks. No ad, tracking or analytics kits.</span></div>
+  <div class="stat"><b>Works offline</b><span>Save, search and ask with no connection, even in airplane mode.</span></div>
+  <div class="stat"><b>On the iPhone</b><span>Reading text, speech to text, search and answers all happen on the device.</span></div>
+</div>
+
+<nav class="flow" aria-label="The six steps">
+  <a href="#save"><b>Save</b><span>Anything becomes words</span></a>
+  <a href="#understand"><b>Understand</b><span>Meaning, names, dates, money</span></a>
+  <a href="#find"><b>Find</b><span>Two searches, blended</span></a>
+  <a href="#answer"><b>Answer</b><span>Code for facts, AI for words</span></a>
+  <a href="#check"><b>Check</b><span>Every answer reviewed</span></a>
+  <a href="#everywhere"><b>Show up</b><span>Siri, widgets, search</span></a>
+</nav>
+
+<section id="save">
+  <p class="eyebrow">Step 1 · Save</p>
+  <h2>Everything becomes words.</h2>
+  <p class="lead">Words are what can be searched. So the first job is turning whatever you save into text.</p>
+  <div class="grid">
+    <div class="card"><h3>Photos and screenshots</h3><p>Apple's Vision framework reads the text in them. It also tags what's in the picture, like "receipt" or "dog," so photos without text can be found too.</p></div>
+    <div class="card"><h3>Voice notes</h3><p>Recording keeps going if the screen locks. Apple's speech recognizer writes it down, on the iPhone only. If it can't for your language, the recording is kept without a transcript instead of being sent out.</p></div>
+    <div class="card"><h3>PDFs and scans</h3><p>Text is read page by page. Scanned pages go through text recognition. If part of a long file couldn't be read, Remember tells you.</p></div>
+    <div class="card"><h3>Share from any app</h3><p>Tap Share, then Remember. It's picked up the next time the app opens, and the same item is never added twice.</p></div>
+    <div class="card"><h3>Your screenshots</h3><p>One tap reads your recent screenshots. The ones with real text are kept. The rest are skipped.</p></div>
+    <div class="card"><h3>Your calendar</h3><p>Optional. Events from the last 90 days and the next 60, kept up to date as they change.</p></div>
+  </div>
+</section>
+
+<section id="understand">
+  <p class="eyebrow">Step 2 · Understand</p>
+  <h2>Every memory gets indexed.</h2>
+  <p class="lead">Each memory is cut into short passages at sentence breaks. Then four things are worked out for each one.</p>
+  <div class="grid two">
+    <div class="card"><h3>Meaning</h3><p>Apple's language toolkit turns each passage into 512 numbers that capture what it means. That's how "what did the plumber charge?" can find "Mike quoted $1,850 to replace the tank," with no words in common.</p></div>
+    <div class="card"><h3>Names</h3><p>Apple's name tagger finds people, places and companies. A name in two or more memories becomes a topic, so the estimate, the email and the receipt for one job end up together.</p></div>
+    <div class="card"><h3>Dates ahead</h3><p>Apple's date detector finds "call by Friday" or "due March 2027" and turns it into a heads-up. A word like "Friday" only counts in recent notes.</p></div>
+    <div class="card"><h3>Money</h3><p>Dollar amounts, and the total on each receipt: the line that says "total," not "subtotal."</p></div>
+  </div>
+</section>
+
+<section id="find">
+  <p class="eyebrow">Step 3 · Find</p>
+  <h2>Two searches at once, blended.</h2>
+  <p class="lead">Every question is searched by meaning and by exact words. Then Remember reads what you meant.</p>
+  <div class="grid">
+    <div class="card"><h3>By meaning</h3><p>Your question's meaning is compared with every passage, using the vector math built into the iPhone's chip.</p></div>
+    <div class="card"><h3>By exact words</h3><p>The ranking method most search engines use. Rare words like "Menards" count a lot. Words like "the" count for nothing.</p></div>
+    <div class="card"><h3>By what you meant</h3><p>The time you named ("last month," "tomorrow"), the kind of thing ("receipts," "voice notes") and the people you mention all lift the matches that fit. Weak matches are dropped.</p></div>
+  </div>
+  <p class="aside"><strong>This is called retrieval-augmented generation.</strong> Find the right material first, then write only from it. Most AI services run it in a data center. Remember runs it on your phone.</p>
+</section>
+
+<section id="answer">
+  <p class="eyebrow">Step 4 · Answer</p>
+  <h2>Code for facts. AI for words.</h2>
+  <p class="lead">Some answers have to be exact. Those never go to the AI.</p>
+  <div class="grid two">
+    <div class="card"><h3>Built in code</h3><p>Spending is added up receipt by receipt, and any receipt without a readable total is listed, not skipped. "What did I save this week?" and "What's on my calendar tomorrow?" are read straight from the dates.</p></div>
+    <div class="card"><h3>Written by Apple's on-device model</h3><p>Everything else goes to the language model built into iOS 26. It gets your question and the best matching passages, each with its date and who wrote it. It's told to answer only from those and to cite them.</p></div>
+    <div class="card"><h3>Follow-ups</h3><p>Ask "And when can he start?" and Remember knows who "he" is from the last answer.</p></div>
+    <div class="card"><h3>On other iPhones</h3><p>Without Apple Intelligence, Remember shows the closest matching memories instead of a written answer. Search works the same.</p></div>
+  </div>
+</section>
+
+<section id="check">
+  <p class="eyebrow">Step 5 · Check</p>
+  <h2>Every answer is checked before you see it.</h2>
+  <p class="lead">A small AI can slip. Code checks its work.</p>
+  <ul class="list">
+    <li><b>Dates that don't add up are removed.</b> A line that says "Monday, November 11" when the 11th is a Wednesday never reaches you.</li>
+    <li><b>Sources match the answer.</b> The numbered sources under an answer are the notes it used. An unrelated note never shows up as a source.</li>
+    <li><b>Honest about time.</b> Ask about last month when nothing from then matches, and the answer says so first.</li>
+    <li><b>"I don't have that" means it.</b> When your memories don't cover a question, Remember says so instead of guessing.</li>
+    <li><b>Clean, readable answers.</b> Repeated lines, half-finished sentences and stray formatting are removed.</li>
+  </ul>
+</section>
+
+<section id="trace">
+  <p class="eyebrow">One question, start to finish</p>
+  <h2>Follow one question through.</h2>
+  <div class="trace">
+    <ol>
+      <li><b>You ask</b><span class="q">How much did the plumber quote for the water heater?</span></li>
+      <li><b>Remember searches</b><span>The note about the plumber's quote ranks first. It matches on meaning and on the words "plumber" and "quote."</span></li>
+      <li><b>The on-device model writes</b><span>It reads that passage and answers in one sentence, citing the note.</span></li>
+      <li><b>Code checks it</b><span>Dates, the citation and the wording are checked. The source goes under the answer.</span></li>
+      <li><b>You get the answer</b><span class="a">Mike from Reliable Plumbing quoted $1,850 to replace the water heater. <sup>1</sup></span></li>
+    </ol>
+    <img src="img/shot-1.jpg" alt="Remember answering the plumber question with its source">
+  </div>
+</section>
+
+<section id="everywhere">
+  <p class="eyebrow">Step 6 · Show up</p>
+  <h2>Wherever you are on your iPhone.</h2>
+  <div class="grid two">
+    <div class="card"><h3>Siri, Shortcuts, Action button</h3><p>Ask, save a note and hear what's coming up, without opening the app.</p></div>
+    <div class="card"><h3>iPhone search</h3><p>Memories show up when you swipe down to search. That index can't be read while your iPhone is locked.</p></div>
+    <div class="card"><h3>Widgets</h3><p>Home Screen and Lock Screen. Details stay hidden until you unlock. One tap saves a voice note.</p></div>
+    <div class="card"><h3>Morning brief</h3><p>Today's events and heads-ups in one notification, scheduled on the iPhone.</p></div>
+  </div>
+</section>
+
+<section id="private">
+  <p class="eyebrow">Private by design</p>
+  <h2>Why there's no server.</h2>
+  <p class="lead">Remember has no code that connects to the internet. That's the core of the app, not a setting.</p>
+  <div class="grid">
+    <div class="card"><h3>Nothing to sign up for</h3><p>No account, no email, no password.</p></div>
+    <div class="card"><h3>Nothing for us to hold</h3><p>We never receive your memories, so there's nothing on our side to leak, sell or hand over.</p></div>
+    <div class="card"><h3>Nothing to wait on</h3><p>No connection needed to save, search or ask.</p></div>
+    <div class="card"><h3>Stored on your iPhone</h3><p>Cloud sync is off. Your iPhone backup includes your memories if you have backups on.</p></div>
+    <div class="card"><h3>The app sends nothing</h3><p>App Store purchases, your iPhone backup and Siri are Apple's own services, under Apple's privacy rules. Remember itself sends nothing.</p></div>
+    <div class="card"><h3>Yours to take or delete</h3><p>Export everything as plain files. Delete a memory and any old answers that quoted it go too.</p></div>
+  </div>
+  <p class="note" style="margin-top:22px">Built entirely on Apple frameworks:</p>
+  <div class="chips">
+    <span>Foundation Models</span><span>Vision</span><span>VisionKit</span><span>Speech</span><span>Natural Language</span><span>Accelerate</span><span>PDFKit</span><span>EventKit</span><span>SwiftData</span><span>Core Spotlight</span><span>App Intents</span><span>WidgetKit</span><span>StoreKit 2</span><span>SwiftUI</span>
+  </div>
+</section>
+
+<section id="limits">
+  <p class="eyebrow">Good to know</p>
+  <h2>What to expect.</h2>
+  <ul class="list">
+    <li><b>Written answers need Apple Intelligence,</b> on iPhone 15 Pro or later. Other iPhones get search with the closest matches.</li>
+    <li><b>Matching by meaning works best in English.</b> Notes in other languages are matched by their exact words.</li>
+    <li><b>Your memories live on one iPhone.</b> They don't sync between devices, so keep backups on.</li>
+    <li><b>Links are saved with the title and text that came with them.</b> Remember doesn't open the web page.</li>
+  </ul>
+</section>
+
+<section class="end">
+  <h2>Your phone already has the answer.</h2>
+  <p class="lead">Free for your first 40 memories.</p>
+  <a class="cta" href="https://apps.apple.com/us/search?term=Remember%20Private%20AI%20Memory">Get it on the App Store</a>
+</section>
+
+<footer>
+  <p>Remember is made by Brenden Buskirk. <a href="./">Home</a> · <a href="contractors.html">For contractors</a> · <a href="privacy.html">Privacy</a> · <a href="mailto:bmoney30253025@gmail.com?subject=Remember%20support">Support</a> · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/">Terms</a></p>
+</footer>
+</main></body></html>
