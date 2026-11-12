@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Bingo Card Maker</title>
+<style>
+:root{--ink:#1d1d1b;--muted:#6a6a64;--line:#dcd8cc;--bg:#f6f4ee;--panel:#fff;--brand:#1f4d3a;--c:#1f4d3a}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{background:var(--brand);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.01em}
+.tabs{display:flex;gap:6px;margin-left:auto}
+.tabs button{background:transparent;border:1.5px solid #ffffff66;color:#fff;border-radius:999px;padding:6px 16px;cursor:pointer;font-weight:600}
+.tabs button.on{background:#fff;color:var(--brand);border-color:#fff}
+.layout{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:16px;padding:16px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.panel h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin:16px 0 8px}
+.panel h2:first-child{margin-top:0}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+#header{text-transform:uppercase}
+input[type=text],input[type=number],select,textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff}
+textarea{min-height:170px;resize:vertical;font-size:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+.ok{color:#1b7a3d;font-weight:600}.warn{color:#b3261e;font-weight:600}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;padding:8px 4px;cursor:pointer;border-right:1.5px solid var(--line);font-weight:600}
+.seg button:last-child{border-right:0}.seg button.on{background:var(--brand);color:#fff}
+.sw{display:flex;gap:6px;flex-wrap:wrap}
+.sw button{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}
+.sw button.on{box-shadow:0 0 0 2.5px var(--ink)}
+.chk{display:flex;align-items:center;gap:8px;font-weight:500;font-size:14px;margin:8px 0}
+.chk input{width:18px;height:18px}
+.btn{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer;width:100%}
+.btn.sec{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+.btn.sm{padding:7px 10px;font-size:13px;width:auto}
+.btn:disabled{opacity:.45;cursor:default}
+.btns{display:grid;gap:8px;margin-top:12px}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.thumbs div{position:relative;width:52px;height:52px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.thumbs img{width:100%;height:100%;object-fit:contain}
+.thumbs button{position:absolute;top:0;right:0;border:0;background:#000a;color:#fff;width:18px;height:18px;line-height:16px;padding:0;cursor:pointer;font-size:12px}
+.stage{min-width:0}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.bar .status{font-size:13.5px}
+#sheets{display:flex;flex-direction:column;gap:14px;align-items:center}
+.zoomwrap{zoom:var(--z,1)}
+footer.app{padding:6px 16px 22px;font-size:12.5px;color:var(--muted);text-align:center}
+
+/* ---------- printable sheets (real paper size) ---------- */
+.sheet{background:#fff;width:var(--pw);height:var(--ph);padding:var(--pm);box-shadow:0 2px 10px #0002;display:grid;gap:.22in;overflow:hidden;font-family:var(--ff)}
+.sheet.pp1{grid-template:1fr/1fr}.sheet.pp2{grid-template:1fr/1fr 1fr}.sheet.pp4{grid-template:1fr 1fr/1fr 1fr}
+.card{display:flex;flex-direction:column;min-width:0;min-height:0;color:#111;--tint:color-mix(in srgb,var(--c) 11%,#fff)}
+.c-title{text-align:center;font-weight:800;line-height:1.05;color:var(--c);font-size:var(--tfs);overflow-wrap:anywhere}
+.c-sub{text-align:center;font-size:calc(var(--tfs)*.4);color:#333;margin-top:.03in;min-height:.01in}
+.c-grid{flex:1;display:grid;grid-template-columns:repeat(var(--n),1fr);grid-template-rows:var(--hdr,) repeat(var(--n),1fr);margin-top:.08in;min-height:0;border-top:var(--bw) solid #111;border-left:var(--bw) solid #111}
+.hd{display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:var(--c);font-size:var(--hfs);border-right:var(--bw) solid #111;border-bottom:var(--bw) solid #111}
+.cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:var(--bw) solid #111;border-bottom:var(--bw) solid #111;padding:.04in;overflow:hidden;line-height:1.12;font-weight:600;overflow-wrap:break-word;min-width:0;min-height:0}
+.cell.free{background:var(--tint);color:var(--c);font-weight:900}
+.cell.free .star{font-size:1.5em;line-height:1;display:block}
+.cell img{max-width:100%;max-height:100%;object-fit:contain;flex:1;min-height:0}
+.cell .cap{font-size:.55em;flex:none}
+.cell.num{font-weight:800}
+.c-foot{display:flex;justify-content:space-between;font-size:8pt;color:#444;margin-top:.04in;gap:.1in}
+.card.st-outline .hd{background:#fff;color:#111}
+.card.st-outline .c-title{color:#111}.card.st-outline .cell.free{background:#fff;color:#111}
+.card.st-soft .c-grid{border:0;gap:.05in}
+.card.st-soft .cell{border:0;background:var(--tint);border-radius:.09in}
+.card.st-soft .cell.free{background:var(--c);color:#fff}
+.card.st-soft .hd{border-radius:.09in;border:0}
+.card.st-bold .c-title{background:var(--c);color:#fff;border-radius:.08in;padding:.06in .1in}
+.card.st-bold .c-grid{border-color:var(--c);outline:var(--bw) solid var(--c)}
+.card.st-bold .cell{border-color:var(--c)}
+.card.st-bold .hd{background:#111;border-color:var(--c)}
+.callsheet{display:block !important}
+.callsheet h3{font-size:22pt;margin:0 0 .04in;color:var(--c)}
+.callsheet .how{border:1.5px solid #111;border-radius:.08in;padding:.1in .14in;font-size:10.5pt;margin:.1in 0 .14in}
+.calllist{columns:3;column-gap:.25in;font-size:var(--cls,11pt)}
+.calllist div{break-inside:avoid;padding:.035in 0;border-bottom:1px solid #ddd;display:flex;gap:.08in;align-items:center}
+.calllist i{flex:none;width:.16in;height:.16in;border:1.5px solid #111;border-radius:3px}
+.calllist img{height:.3in}
+.slips{display:grid !important;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:0}
+.slip{border:1px dashed #777;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:.06in;font-weight:700;font-size:17pt;overflow:hidden;line-height:1.1;overflow-wrap:break-word}
+.slip img{max-height:.9in;max-width:100%}
+.slip small{font-weight:500;font-size:7pt;color:#777;margin-top:.03in}
+
+/* ---------- play tab ---------- */
+#play{padding:16px;max-width:980px;margin:0 auto}
+.now{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center}
+.now .big{font-size:clamp(34px,8vw,84px);font-weight:900;line-height:1.05;color:var(--brand);min-height:1.1em;overflow-wrap:anywhere}
+.now .big img{max-height:38vh;max-width:100%}
+.called{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.called span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13.5px}
+.called span.last{background:var(--brand);color:#fff;border-color:var(--brand)}
+.checker{margin-top:16px}
+.mini{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:3px;max-width:520px;margin-top:10px}
+.mini div{border:1.5px solid var(--line);border-radius:6px;min-height:54px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;padding:3px;background:#fff;overflow:hidden}
+.mini div.hit{background:#1b7a3d;color:#fff;border-color:#1b7a3d;font-weight:700}
+.mini img{max-height:44px;max-width:100%}
+
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff}
+  .top,.panel,.bar,footer.app,#play{display:none !important}
+  .layout{display:block;padding:0}
+  .zoomwrap{zoom:1 !important}
+  #sheets{display:block}
+  .sheet{box-shadow:none;break-after:page;page-break-after:always;margin:0;height:calc(var(--ph) - 1px)}
+  .sheet:last-child{break-after:auto;page-break-after:auto}
+  body.p-cards .sheet.extra, body.p-extras .sheet.cards{display:none !important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+<style id="pagecss"></style>
+</head>
+<body>
+<div class="top"><h1>Bingo Card Maker</h1>
+  <div class="tabs"><button id="tabMake" class="on">Make cards</button><button id="tabPlay">Call the game</button></div></div>
+
+<div id="make" class="layout">
+<section class="panel" aria-label="Settings">
+  <h2>1. Your game</h2>
+  <label for="starter">Start from a ready-made list (optional)</label>
+  <select id="starter"></select>
+  <label for="title">Title on the cards</label>
+  <input id="title" type="text" maxlength="60">
+  <label for="sub">Line under the title (optional)</label>
+  <input id="sub" type="text" maxlength="90" placeholder="Example: Mark a square each time a gift is opened">
+  <label>Kind of bingo</label>
+  <div class="seg" id="mode"><button data-v="words">Words or pictures</button><button data-v="numbers">Numbers 1 to 75</button></div>
+
+  <div id="wordsBox">
+    <label for="words">Your words (one per line, or separated by commas)</label>
+    <textarea id="words" spellcheck="true"></textarea>
+    <div class="hint" id="wordHint"></div>
+    <label>Pictures (optional)</label>
+    <input id="imgs" type="file" accept="image/*" multiple>
+    <div class="hint">Each picture becomes one square. Pictures stay on this device.</div>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+
+  <h2>2. Card layout</h2>
+  <label>Squares</label>
+  <div class="seg" id="size"><button data-v="3">3 × 3</button><button data-v="4">4 × 4</button><button data-v="5">5 × 5</button></div>
+  <div class="row">
+    <div><label for="count">How many cards</label><input id="count" type="number" min="1" max="500" step="1"></div>
+    <div><label for="perPage">Cards per page</label><select id="perPage"><option value="1">1 (large)</option><option value="2">2 (side by side)</option><option value="4">4 (small)</option></select></div>
+  </div>
+  <div class="row">
+    <div><label for="paper">Paper</label><select id="paper"><option value="letter">US Letter</option><option value="a4">A4</option></select></div>
+    <div><label for="header">Letters across the top</label><input id="header" type="text" maxlength="5" placeholder="BINGO"></div>
+  </div>
+  <label class="chk"><input id="free" type="checkbox"> Free space in the middle</label>
+  <div id="freeBox"><label for="freeText">Free space text</label><input id="freeText" type="text" maxlength="14"></div>
+  <label class="chk"><input id="showNum" type="checkbox"> Number each card (needed for the winner checker)</label>
+  <label for="footer">Small line at the bottom of each card (optional)</label>
+  <input id="footer" type="text" maxlength="70" placeholder="Example: Emma's Baby Shower, June 14">
+
+  <h2>3. Look</h2>
+  <label>Color</label><div class="sw" id="colors"></div>
+  <div class="row">
+    <div><label for="style">Style</label><select id="style"><option value="classic">Classic</option><option value="soft">Soft and rounded</option><option value="bold">Bold</option><option value="outline">Ink saver (black and white)</option></select></div>
+    <div><label for="font">Lettering</label><select id="font"><option value="sans">Clean</option><option value="serif">Classic serif</option><option value="round">Playful</option><option value="slab">Typewriter</option></select></div>
+  </div>
+
+  <h2>4. Print</h2>
+  <div class="hint" id="status"></div>
+  <div class="btns">
+    <button class="btn" id="printAll">Print everything</button>
+    <div class="row"><button class="btn sec" id="printCards">Cards only</button><button class="btn sec" id="printExtras">Calling sheet only</button></div>
+    <button class="btn sec" id="reshuffle">Shuffle into new cards</button>
+  </div>
+  <div class="hint">To save a PDF, choose "Save as PDF" as the printer. Set margins to "None" or "Default" and turn on "Background graphics" for color.</div>
+
+  <h2>Save your game</h2>
+  <div class="row"><button class="btn sec" id="exportBtn">Save game file</button><button class="btn sec" id="importBtn">Open game file</button></div>
+  <input id="importFile" type="file" accept=".json,application/json" hidden>
+  <div class="hint">Game code: <b id="seedShow"></b>. The same code and words always make the same cards, so a reprint matches.</div>
+</section>
+
+<section class="stage">
+  <div class="bar"><span class="status" id="summary"></span></div>
+  <div class="zoomwrap" id="zoomwrap"><div id="sheets"></div></div>
+</section>
+</div>
+
+<div id="play" hidden>
+  <div class="now">
+    <div class="hint" id="playTitle"></div>
+    <div class="big" id="nowCall">Ready?</div>
+    <div class="hint" id="callCount"></div>
+    <div class="row" style="max-width:520px;margin:14px auto 0"><button class="btn" id="drawBtn">Call the next one</button><button class="btn sec" id="resetBtn">Start a new game</button></div>
+  </div>
+  <div class="called" id="calledList"></div>
+  <div class="panel checker">
+    <h2>Check a winner</h2>
+    <div class="hint">When someone shouts "Bingo!", type the number printed on their card.</div>
+    <div class="row" style="max-width:420px;margin-top:8px"><input id="checkNum" type="number" min="1" placeholder="Card number"><button class="btn" id="checkBtn">Check card</button></div>
+    <div id="checkOut"></div>
+  </div>
+</div>
+<footer class="app">Bingo Card Maker. Your words and pictures never leave this device. Nothing is uploaded.</footer>
+
+<script>
+// Starter word lists. Each: [name, emoji, default title, words separated by |]
+const STARTERS = [
+["Baby shower gifts","🍼","Baby Shower Bingo","Diapers|Onesie|Bottle|Pacifier|Stroller|Car seat|Crib|Blanket|Bib|Rattle|Teddy bear|Booties|Baby wipes|Burp cloth|Swaddle|High chair|Baby monitor|Diaper bag|Bath towel|Board book|Teether|Baby lotion|Hat|Socks|Mittens|Mobile|Night light|Play mat|Sippy cup|Baby shampoo|Rocking chair|Changing pad|Sleep sack|Bouncer|Thermometer|Nail clippers|Gift card|Photo frame|Baby carrier|Sound machine"],
+["Bridal shower gifts","💍","Bridal Shower Bingo","Toaster|Blender|Towels|Sheets|Candles|Wine glasses|Cookbook|Picture frame|Gift card|Vase|Apron|Coffee maker|Mixing bowls|Cutting board|Knife set|Throw pillow|Blanket|Slippers|Robe|Luggage|Serving tray|Measuring cups|Dish towels|Pots and pans|Dinner plates|Silverware|Tablecloth|Bath mat|Scented soap|Honeymoon fund|Champagne|Recipe box|Welcome mat|Laundry basket|Slow cooker|Waffle maker|Cheese board|Tea kettle|Spice rack|Oven mitts"],
+["Wedding reception","💒","Wedding Bingo","First dance|Toast|Bouquet toss|Cake cutting|Happy tears|Dad jokes|Ring bearer|Flower girl|Conga line|Slow song|Kids on the dance floor|Group photo|Speech runs long|Someone cries|Open bar line|Clinking glasses|Tie comes off|Shoes come off|Photo booth|Grandma dancing|Best man speech|Maid of honor speech|Throwback song|Selfie|Sparklers|Late-night snack|Garter toss|Kiss|Matching outfits|Guest book|Favors|DJ shout-out|Line dance|Bubbles|Uncle on the mic|Last dance|Bow tie|Veil|Unplanned speech|Dessert table"],
+["Birthday party","🎂","Birthday Bingo","Cake|Candles|Balloons|Presents|Party hat|Singing|Wish|Ice cream|Streamers|Confetti|Piñata|Goodie bag|Card|Wrapping paper|Sprinkles|Pizza|Juice box|Games|Laughing|Photos|Cupcake|Frosting|Ribbon|Bow|Surprise|Friends|Music|Dancing|Banner|Sparkler|Noise maker|Thank you|Gift bag|Tablecloth|Party games|Candy|Punch|Crown|Sash|Blowing out candles"],
+["Christmas","🎄","Christmas Bingo","Santa|Reindeer|Snowman|Christmas tree|Presents|Stocking|Candy cane|Ornament|Wreath|Sleigh|Elf|Gingerbread|Mistletoe|Star|Angel|Bells|Snowflake|Hot cocoa|Carolers|Fireplace|Chimney|Lights|Tinsel|Nutcracker|Fruitcake|Eggnog|North Pole|Wrapping paper|Ribbon|Candle|Holly|Ugly sweater|Cookies|Mittens|Scarf|Ice skates|Sled|Poinsettia|Garland|Toy train"],
+["Holiday office party","🎁","Office Party Bingo","Ugly sweater|Secret Santa|Gift swap|Cookie tray|Someone brings a plus-one|Boss gives a speech|Karaoke|Group photo|Holiday playlist|Regifted candle|Santa hat|Potluck dish|Punch bowl|Someone leaves early|Talks about work anyway|Reindeer antlers|Raffle prize|Dad joke|Dessert table|Thank-you toast|Paper plates|Name tag|Light-up necklace|Gift card|Mug as a gift|Team trivia|Selfie|Compliments a sweater|Spilled drink|Elf ears|Party games|Conga line|Fruitcake appears|Leftovers go home|Hot cocoa bar|Tinsel|Jingle bells|White elephant steal|Holiday card|Clean-up crew"],
+["Thanksgiving","🦃","Thanksgiving Bingo","Turkey|Stuffing|Gravy|Mashed potatoes|Cranberry sauce|Pumpkin pie|Green beans|Rolls|Sweet potatoes|Corn|Pecan pie|Apple pie|Football|Parade|Nap|Leftovers|Wishbone|Cornucopia|Acorn|Fall leaves|Grateful|Family|Kids' table|Seconds|Whipped cream|Casserole|Cider|Tablecloth|Candles|Saying grace|Dishes|Family recipe|Oven timer|Carving knife|Pie crust|Gourd|Scarecrow|Harvest|Travel traffic|Stretchy pants"],
+["New Year's Eve","🎉","New Year's Eve Bingo","Countdown|Midnight|Confetti|Fireworks|Champagne|Toast|Resolution|Party hat|Noisemaker|Balloons|Ball drop|Midnight kiss|Auld Lang Syne|Sparklers|Clock|Calendar|Streamers|Cheers|Dancing|Glitter|Disco ball|Sparkling cider|Selfie|Playlist|Snacks|Fresh start|Gym plans|Bucket list|Pajamas|Stayed up late|Fell asleep early|Group photo|Party popper|Tiara|Bow tie|Sequins|Brunch plans|Parade|New planner|Happy New Year!"],
+["Halloween","🎃","Halloween Bingo","Pumpkin|Ghost|Witch|Bat|Black cat|Spider|Cobweb|Skeleton|Candy corn|Costume|Trick or treat|Haunted house|Full moon|Monster|Mummy|Vampire|Zombie|Cauldron|Broomstick|Owl|Scarecrow|Jack-o'-lantern|Candy bag|Mask|Fog|Graveyard|Potion|Witch hat|Boo!|Spooky music|Flashlight|Caramel apple|Hayride|Corn maze|Wizard|Pirate|Superhero|Princess|Glow stick|Chocolate bar"],
+["Valentine's Day","💘","Valentine's Bingo","Heart|Roses|Chocolates|Love letter|Cupid|Arrow|Teddy bear|Balloons|Candy hearts|Date night|Hug|Kiss|Card|Pink|Red|Flowers|Sweetheart|Be mine|XOXO|Candlelight|Dinner|Dessert|Love song|Ring|Bow|Lace|Cupcake|Strawberries|Secret admirer|Crush|Poem|Friendship|Lollipop|Mailbox|Doily|Ribbon|Sparkles|Smile|Best friend|True love"],
+["Easter and spring","🐣","Easter Bingo","Bunny|Egg hunt|Basket|Chick|Jelly beans|Chocolate bunny|Tulip|Daffodil|Lamb|Carrot|Bonnet|Dyed eggs|Butterfly|Rainbow|Spring|Flowers|Grass|Nest|Duckling|Sunshine|Rain boots|Umbrella|Garden|Seeds|Ladybug|Bee|Kite|Picnic|Brunch|Hot cross buns|Pastel colors|Ribbon|Bow tie|Sunday best|Puddle|Robin|Lily|Marshmallow chicks|Egg roll|Bunny ears"],
+["Fourth of July","🎆","Fourth of July Bingo","Fireworks|Flag|Parade|Sparklers|Barbecue|Hot dog|Hamburger|Watermelon|Lemonade|Picnic|Red|White|Blue|Stars|Stripes|Pool party|Sunscreen|Popsicle|Corn on the cob|Apple pie|Baseball|Marching band|Lawn chair|Cooler|Potato salad|Ice cream|Flip-flops|Sunglasses|Bug spray|Lightning bugs|Bonfire|S'mores|Lake day|Boat ride|Patriotic song|Family reunion|Glow sticks|Water balloons|Grill master|Summer night"],
+["Graduation party","🎓","Graduation Bingo","Cap|Gown|Diploma|Tassel|Proud parents|Speech|Class ring|Yearbook|Photos|Hugs|Happy tears|Cake|Balloons|Gift card|Card with cash|Future plans|College|First job|Class song|Banner|Best friends|Teacher|Handshake|Applause|Cap toss|Honor cords|Road trip|Thank-you notes|Memory board|Baby pictures|Party playlist|Slideshow|Guest book|Advice jar|Selfie|Confetti|Dancing|Group photo|Dessert table|\"What's next?\""],
+["Retirement party","🏖️","Retirement Bingo","Gold watch|Farewell speech|Cake|Card signed by all|Fishing plans|Golf plans|Travel plans|Grandkids|\"No more Mondays\"|Old photos|Funny story|Happy tears|Toast|Gift|Balloons|Sleeping in|Hobby|Garden|RV|Cruise|Beach|Volunteer|Naps|Last day|Handshake|Hug|Boss speaks|Roast joke|Slideshow|Years of service|Desk cleaned out|Out-of-office reply|Coffee mug|Advice|\"Stay in touch\"|Bucket list|Party hat|Applause|Group photo|\"What will you do now?\""],
+["Family reunion","👨‍👩‍👧‍👦","Family Reunion Bingo","Matching T-shirts|Group photo|Potato salad|Grandma's recipe|Cousins|Baby of the family|Oldest relative|Family tree|Old photo album|Same story again|Card game|Cornhole|Folding chairs|Cooler|Nap in a lawn chair|Kids running wild|\"You've gotten so tall!\"|Someone's late|Name tags|Family joke|Dessert table|Watermelon|Grill|Pie|Hugs|Road trip|New baby|Engagement news|Dad jokes|Sunburn|Bug spray|Water balloons|Three-legged race|Family song|Toast|Leftovers to go|Long goodbye|Recipe swap|Home videos|\"Who's that again?\""],
+["Football watch party","🏈","Football Bingo","Touchdown|Field goal|Flag on the play|Interception|Fumble|Punt|Kickoff|Timeout|Instant replay|First down|Sack|Two-minute warning|Coach yells|Fan in face paint|Halftime|Extra point|Coin toss|Penalty|End zone dance|Sideline reporter|Challenge flag|Wings|Nachos|Chips and dip|Pizza arrives|Someone yells at the TV|Funny commercial|Car commercial|Truck commercial|Snack commercial|Blimp shot|Mascot|Overtime talk|Kicker misses|Long pass|Quarterback scramble|Crowd goes wild|Jersey|High five|\"Did you see that?\""],
+["Road trip","🚗","Road Trip Bingo","Red car|Cow|Stop sign|Bridge|Truck|Motorcycle|Barn|Water tower|Gas station|School bus|Train|Horse|Tractor|Billboard|Rest stop|Police car|RV|Dog in a car|Yellow car|River|Tunnel|Windmill|Church|Flag|Airplane|Bicycle|Hay bales|Cornfield|Lake|Mountain|Construction cone|Speed limit sign|Out-of-state plate|Convertible|Fast-food sign|Toll booth|Camper|Boat on a trailer|Bird on a wire|Welcome sign"],
+["Nature walk","🌳","Nature Walk Bingo","Bird|Squirrel|Pine cone|Acorn|Feather|Butterfly|Ant|Spider web|Mushroom|Flower|Tall tree|Fallen log|Rock|Stream|Puddle|Animal tracks|Moss|Leaf|Stick|Bee|Ladybug|Worm|Nest|Cloud|Berries|Tree stump|Wildflower|Bird song|Frog|Dragonfly|Smooth stone|Clover|Bark|Seed pod|Hole in a tree|Something red|Something yellow|Something soft|Something rough|Something tiny"],
+["Sight words (classroom)","📚","Sight Word Bingo","the|and|is|you|that|it|he|was|for|on|are|as|with|his|they|at|be|this|have|from|or|one|had|by|word|but|not|what|all|were|we|when|your|can|said|there|use|an|each|which|she|do|how|their|if|will|up|other|about|out"],
+["Get to know you (find someone who)","🙋","Find Someone Who...","Has a pet dog|Has a pet cat|Plays an instrument|Speaks two languages|Was born in another state|Has been on a plane|Loves to cook|Is left-handed|Has a sibling|Is an only child|Has the same birth month as you|Likes pineapple on pizza|Can whistle|Has been camping|Plays a sport|Loves to read|Has met someone famous|Can juggle|Has a garden|Drinks coffee daily|Has run a race|Has moved more than 3 times|Wears glasses|Can ride a horse|Has been to the ocean|Likes spicy food|Has a tattoo|Is a morning person|Is a night owl|Knows how to knit or sew|Has broken a bone|Can do a cartwheel|Has a nickname|Loves scary movies|Has been on TV|Bakes bread|Has traveled abroad|Collects something|Sings in the shower|Has a twin in the family"],
+["Meeting or conference call","💼","Meeting Bingo","\"You're on mute\"|\"Can everyone see my screen?\"|\"Let's take this offline\"|\"Circle back\"|Dog barks|Kid walks in|Someone joins late|\"Can you hear me?\"|Frozen video|Echo|\"Quick question\"|\"Sorry, go ahead\"|Two people talk at once|\"Next slide, please\"|Awkward silence|\"I'll follow up by email\"|Camera off|Background noise|\"Does that make sense?\"|\"Let's table that\"|Doorbell rings|Eating on camera|\"We're at time\"|\"One more thing\"|Calendar invite mid-meeting|\"Low-hanging fruit\"|\"Touch base\"|Virtual background|\"Great question\"|Phone rings|\"Is everyone here?\"|\"I have a hard stop\"|Screen share fails|Typing loudly|\"Thanks, everyone\"|\"Let's align\"|\"Bandwidth\"|\"Deep dive\"|\"Action items\"|Meeting runs over"],
+["Movie night","🍿","Movie Night Bingo","Car chase|Dramatic rain|Slow-motion walk|Villain monologue|Training montage|Surprise twist|Kiss in the rain|Explosion|Sidekick joke|Phone has no signal|\"We've got company\"|Flashback|Dream sequence|Airport dash|Makeover scene|Dog steals the scene|Wise old mentor|Secret revealed|Last-second rescue|Dance scene|Opening narration|Text on screen: years later|Run through a crowd|Dramatic music swell|Hero walks away|Fake-out ending|Cameo|Rooftop scene|Elevator scene|Someone trips|Storm rolls in|Big speech|Bad disguise|Countdown timer|Food fight|Love triangle|Meet the parents|Road trip|Sunset shot|Post-credits scene"],
+["Summer fun","☀️","Summer Bingo","Swimming|Sunscreen|Popsicle|Lemonade stand|Fireflies|Sprinkler|Bike ride|Ice cream truck|Beach day|Sandcastle|Flip-flops|Watermelon|Picnic|Camping|S'mores|Fishing|Water balloons|Sunglasses|Sidewalk chalk|Bubbles|Library trip|Stargazing|Farmers market|Baseball game|Barbecue|Hammock|Sunburn|Road trip|Fireworks|Garden tomatoes|Lake day|Kite|Hiking|Thunderstorm|Late bedtime|Pool float|Snow cone|Mini golf|Outdoor movie|Bare feet"],
+["Animals with pictures","🐾","Animal Bingo","🐶 Dog|🐱 Cat|🐭 Mouse|🐰 Rabbit|🦊 Fox|🐻 Bear|🐼 Panda|🐨 Koala|🐯 Tiger|🦁 Lion|🐮 Cow|🐷 Pig|🐸 Frog|🐵 Monkey|🐔 Chicken|🐧 Penguin|🐦 Bird|🦆 Duck|🦉 Owl|🐴 Horse|🦄 Unicorn|🐝 Bee|🦋 Butterfly|🐌 Snail|🐞 Ladybug|🐢 Turtle|🐍 Snake|🐙 Octopus|🐠 Fish|🐬 Dolphin|🐳 Whale|🦈 Shark|🐘 Elephant|🦒 Giraffe|🦓 Zebra|🐑 Sheep|🐐 Goat|🦌 Deer|🐿️ Squirrel|🦔 Hedgehog"],
+];
+
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COLORS = ["#1f4d3a","#a8282f","#1d3557","#3a56d4","#0f766e","#6d28d9","#d6336c","#d9480f","#b8892b","#2b2b2b"];
+const FONTS = {sans:'"Helvetica Neue",Helvetica,Arial,sans-serif', serif:'Georgia,"Times New Roman",serif', round:'"Chalkboard SE","Comic Sans MS","Comic Neue","Marker Felt",cursive', slab:'"Courier New",Courier,monospace'};
+const KEY = "bingo-card-maker-v1";
+const newSeed = () => Array.from({length:6}, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random()*32)]).join("");
+
+let S = {title:"", sub:"", mode:"words", words:"", size:5, count:30, perPage:1, paper:"letter", header:"BINGO", free:true, freeText:"FREE",
+         showNum:true, footer:"", color:COLORS[0], style:"classic", font:"sans", seed:newSeed(), starter:0, called:[]};
+let IMAGES = [];           // {src, label}
+let CARDS = [];            // array of arrays (item index, or -1 for the free space)
+let ITEMS = [];            // {t, img}
+let QUALITY = "";
+
+// ---------- seeded random ----------
+function rngFrom(seed){
+  let h = 1779033703 ^ seed.length;
+  for (let i = 0; i < seed.length; i++){ h = Math.imul(h ^ seed.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  let a = (h ^ (h >>> 16)) >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function shuffled(arr, rnd){ const a = arr.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// ---------- items ----------
+function parseWords(text){
+  let parts = text.split(/\r?\n/);
+  if (parts.filter(p => p.trim()).length <= 1 && text.includes(",")) parts = text.split(",");
+  const seen = new Set(), out = [];
+  for (let p of parts){ p = p.trim().replace(/\s+/g, " "); if (!p) continue; const k = p.toLowerCase(); if (seen.has(k)) continue; seen.add(k); out.push(p); }
+  return out;
+}
+function buildItems(){
+  if (S.mode === "numbers") return Array.from({length:75}, (_, i) => ({t:String(i + 1), n:i + 1}));
+  return parseWords(S.words).map(t => ({t})).concat(IMAGES.map(im => ({t:im.label || "", img:im.src})));
+}
+const hasFree = () => S.free && S.size % 2 === 1;
+const need = () => S.size * S.size - (hasFree() ? 1 : 0);
+
+// ---------- card generation ----------
+function generate(){
+  ITEMS = buildItems(); CARDS = []; QUALITY = "";
+  const n = ITEMS.length, k = need(), N = S.size, count = Math.max(1, Math.min(500, S.count | 0));
+  const rnd = rngFrom([S.seed, S.mode, N, hasFree(), n].join("|"));
+  const mid = (N * N - 1) / 2;
+  const seenSet = new Set(), seenOrder = new Set();
+  if (S.mode === "numbers"){
+    for (let c = 0; c < count; c++){
+      let card, key, tries = 0;
+      do {
+        const cols = []; for (let col = 0; col < 5; col++) cols.push(shuffled(Array.from({length:15}, (_, i) => col * 15 + i), rnd).slice(0, 5).sort((a, b) => a - b));
+        card = []; for (let r = 0; r < 5; r++) for (let col = 0; col < 5; col++) card.push(cols[col][r]);
+        if (hasFree()) card[12] = -1;
+        key = card.join(","); tries++;
+      } while (seenOrder.has(key) && tries < 500);
+      seenOrder.add(key); CARDS.push(card);
+    }
+    QUALITY = "unique"; return;
+  }
+  if (n < k) return;
+  let deck = [];
+  const all = Array.from({length:n}, (_, i) => i);
+  const draw = () => {
+    const out = [], used = new Set();
+    while (out.length < k){
+      let j = deck.findIndex(x => !used.has(x));
+      if (j < 0){ deck = deck.concat(shuffled(all, rnd)); continue; }
+      const x = deck.splice(j, 1)[0]; used.add(x); out.push(x);
+    }
+    return shuffled(out, rnd);
+  };
+  let setDupes = 0, orderDupes = 0;
+  for (let c = 0; c < count; c++){
+    let pick, setKey, orderKey, tries = 0;
+    do { pick = draw(); setKey = pick.slice().sort((a, b) => a - b).join(","); tries++; } while (seenSet.has(setKey) && tries < 60);
+    if (seenSet.has(setKey)){
+      setDupes++; tries = 0;
+      do { pick = shuffled(pick, rnd); orderKey = pick.join(","); tries++; } while (seenOrder.has(orderKey) && tries < 300);
+      if (seenOrder.has(orderKey)) orderDupes++;
+    }
+    seenSet.add(setKey); seenOrder.add(pick.join(","));
+    if (hasFree()) pick.splice(mid, 0, -1);
+    CARDS.push(pick);
+  }
+  QUALITY = orderDupes ? "repeat" : setDupes ? "arranged" : "unique";
+}
+
+// ---------- rendering ----------
+const PAPER = {letter:[8.5, 11], a4:[8.27, 11.69]};
+function pageDims(){ let [w, h] = PAPER[S.paper]; if (S.perPage === 2) [w, h] = [h, w]; return [w, h]; }
+function headerLetters(){
+  if (S.mode === "numbers") return "BINGO".split("");
+  const h = (S.header || "").trim(); const chars = Array.from(h);
+  return chars.length === S.size ? chars : null;
+}
+function cellInner(it){
+  if (!it) return "";
+  if (it.img) return `<img src="${it.img}" alt="">` + (it.t ? `<span class="cap">${esc(it.t)}</span>` : "");
+  return esc(it.t);
+}
+function cardHTML(card, idx, sizes){
+  const hl = headerLetters();
+  const cells = card.map(i => {
+    if (i < 0) return `<div class="cell free" style="font-size:${sizes.free}px"><span class="star">★</span>${esc(S.freeText || "")}</div>`;
+    const it = ITEMS[i];
+    return `<div class="cell${S.mode === "numbers" ? " num" : ""}" style="font-size:${sizes.items[i]}px">${cellInner(it)}</div>`;
+  }).join("");
+  const hd = hl ? hl.map(ch => `<div class="hd">${esc(ch)}</div>`).join("") : "";
+  return `<div class="card st-${S.style}" style="--n:${S.size};${hl ? "--hdr:var(--hh);" : ""}">
+  ${S.title ? `<div class="c-title">${esc(S.title)}</div>` : ""}${S.sub ? `<div class="c-sub">${esc(S.sub)}</div>` : ""}
+  <div class="c-grid">${hd}${cells}</div>
+  <div class="c-foot"><span>${esc(S.footer || "")}</span><span>${S.showNum ? "Card " + (idx + 1) : ""}</span></div></div>`;
+}
+function fitSizes(){
+  // Measure one real cell, then find the largest font size at which each item fits.
+  const host = $("#sheets"); $("#zoomwrap").style.setProperty("--z", 1);
+  const probe = document.createElement("div");
+  probe.className = `sheet cards pp${S.perPage}`; probe.style.visibility = "hidden"; probe.style.position = "absolute";
+  const fake = {items:ITEMS.map(() => 10), free:10};
+  let html = ""; for (let i = 0; i < S.perPage; i++) html += cardHTML(CARDS[0], 0, fake);
+  probe.innerHTML = html; host.appendChild(probe);
+  const cell = probe.querySelector(".cell:not(.free)") || probe.querySelector(".cell");
+  const w = cell.clientWidth, h = cell.clientHeight;
+  const m = document.createElement("div"); m.className = "cell"; const mw = w - Math.max(3, w * .04), mh = h - 2; m.style.cssText = `width:${mw}px;height:${mh}px;position:absolute;border:0;visibility:hidden;overflow-wrap:normal;word-break:normal;display:block`;
+  probe.querySelector(".c-grid").appendChild(m);
+  const maxFs = Math.min(h * (S.mode === "numbers" ? .56 : .34), w * .5), minFs = 5;
+  const fit = (inner, cap) => { let lo = minFs, hi = cap || maxFs; m.innerHTML = inner;
+    for (let i = 0; i < 9; i++){ const mid = (lo + hi) / 2; m.style.fontSize = mid + "px"; (m.scrollHeight <= mh + 0.5 && m.scrollWidth <= mw + 0.5) ? lo = mid : hi = mid; }
+    return Math.floor(lo * 10) / 10; };
+  const cache = new Map();
+  const items = ITEMS.map(it => { if (it.img) return Math.max(8, h * .3); const key = it.t; if (!cache.has(key)) cache.set(key, fit(esc(it.t))); return cache.get(key); });
+  // keep single-word squares visually even: cap every square at 1.6x the median size
+  const sorted = items.slice().sort((a, b) => a - b), med = sorted[Math.floor(sorted.length / 2)] || 12;
+  const capped = items.map(v => Math.min(v, med * 1.4));
+  const free = fit(`<span class="star">★</span>${esc(S.freeText || "")}`, maxFs * .8);
+  host.removeChild(probe);
+  return {items:capped, free};
+}
+function extrasHTML(){
+  const land = S.perPage === 2, cols = land ? 6 : 4, rows = land ? 5 : 7;
+  const order = ITEMS.map((it, i) => i);
+  const label = it => it.img ? `<img src="${it.img}" alt=""> ${esc(it.t)}` : (S.mode === "numbers" ? "BINGO"[Math.floor((it.n - 1) / 15)] + " " + it.n : esc(it.t));
+  const sortedIdx = S.mode === "numbers" ? order : order.slice().sort((a, b) => (ITEMS[a].t || "").localeCompare(ITEMS[b].t || "", undefined, {numeric:true, sensitivity:"base"}));
+  const cls = ITEMS.length > 90 ? "9.5pt" : ITEMS.length > 54 ? "11pt" : "14pt";
+  const how = S.mode === "numbers"
+    ? "Give every player a card and something to mark it with. Cut out the calling slips, mix them in a bowl and draw one at a time. Call each number and tick it off below. The first player to mark five in a row (across, down or corner to corner) shouts BINGO."
+    : `Give every player a card and something to mark it with. Cut out the calling slips, mix them in a bowl and draw one at a time (or use "Call the game" on screen). Call each one and tick it off below. The first player to mark ${S.size} in a row (across, down or corner to corner) shouts BINGO.`;
+  let out = `<div class="sheet extra callsheet"><h3>${esc(S.title || "Bingo")}: calling sheet</h3>
+  <div class="how"><b>How to play.</b> ${how}${S.showNum ? " To check a winner, compare their card with the ticks below, or type their card number into the winner checker." : ""}</div>
+  <div class="calllist" style="--cls:${cls};columns:${land ? 4 : 3}">${sortedIdx.map(i => `<div><i></i><span>${label(ITEMS[i])}</span></div>`).join("")}</div></div>`;
+  const per = cols * rows;
+  for (let p = 0; p < ITEMS.length; p += per){
+    out += `<div class="sheet extra slips" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)">` +
+      ITEMS.slice(p, p + per).map(it => `<div class="slip">${it.img ? `<img src="${it.img}" alt="">` : ""}${S.mode === "numbers" ? "BINGO"[Math.floor((it.n - 1) / 15)] + " " + it.n : esc(it.t)}</div>`).join("") + `</div>`;
+  }
+  return out;
+}
+function render(){
+  const [pw, ph] = pageDims();
+  const root = document.documentElement.style;
+  root.setProperty("--c", S.color); root.setProperty("--ff", FONTS[S.font]);
+  root.setProperty("--pw", pw + "in"); root.setProperty("--ph", ph + "in"); root.setProperty("--pm", S.perPage === 4 ? ".35in" : ".45in");
+  const scale = S.perPage === 1 ? 1 : S.perPage === 2 ? .72 : .5;
+  root.setProperty("--tfs", (S.size === 3 ? 34 : 38) * scale + "pt"); root.setProperty("--hfs", 30 * scale + "pt"); root.setProperty("--hh", (.62 * scale) + "in");
+  root.setProperty("--bw", (S.perPage === 4 ? 1.4 : 2) + "px");
+  $("#pagecss").textContent = `@page{size:${pw}in ${ph}in;margin:0}`;
+  generate();
+  const k = need(), n = ITEMS.length, host = $("#sheets");
+  const hint = $("#wordHint"), status = $("#status"), summary = $("#summary");
+  const ok = CARDS.length > 0;
+  ["printAll","printCards","printExtras"].forEach(id => $("#" + id).disabled = !ok);
+  if (S.mode === "words"){
+    hint.innerHTML = n >= k ? `<span class="ok">${n} squares ready.</span> You need at least ${k}. ${n < k + 6 ? "Add a few more so the cards differ more." : ""}`
+                            : `<span class="warn">${n} so far. Add ${k - n} more</span> to fill a ${S.size} × ${S.size} card.`;
+  }
+  if (!ok){ host.innerHTML = ""; status.innerHTML = `<span class="warn">Add more words to see your cards.</span>`; summary.textContent = ""; save(); return; }
+  const sizes = fitSizes();
+  let html = "";
+  for (let i = 0; i < CARDS.length; i += S.perPage){
+    html += `<div class="sheet cards pp${S.perPage}">` + CARDS.slice(i, i + S.perPage).map((c, j) => cardHTML(c, i + j, sizes)).join("") + `</div>`;
+  }
+  host.innerHTML = html + extrasHTML();
+  const pages = Math.ceil(CARDS.length / S.perPage);
+  const q = QUALITY === "unique" ? `<span class="ok">All ${CARDS.length} cards are different.</span>`
+          : QUALITY === "arranged" ? `<span class="ok">All ${CARDS.length} cards are arranged differently.</span> Some share the same squares. Add more words for more variety.`
+          : `<span class="warn">Some cards repeat.</span> Add more words or make fewer cards.`;
+  status.innerHTML = `${q} ${pages} page${pages > 1 ? "s" : ""} of cards, plus a calling sheet and calling slips.`;
+  summary.innerHTML = `<b>${CARDS.length}</b> card${CARDS.length > 1 ? "s" : ""} · ${S.size} × ${S.size} · ${pages} page${pages > 1 ? "s" : ""} + calling sheet. Scroll to preview every page.`;
+  $("#seedShow").textContent = S.seed;
+  fitZoom(); save();
+}
+function fitZoom(){
+  const [pw] = pageDims(); const avail = $(".stage").clientWidth - 4; const px = pw * 96;
+  $("#zoomwrap").style.setProperty("--z", Math.min(1, avail / px).toFixed(3));
+}
+
+// ---------- persistence ----------
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function load(){ try { const v = JSON.parse(localStorage.getItem(KEY) || "null"); if (v && typeof v === "object") S = Object.assign(S, v); } catch (e) {} }
+function download(name, text){ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], {type:"application/json"})); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+
+// ---------- controls ----------
+function setSeg(id, v){ document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle("on", b.dataset.v === String(v))); }
+function syncControls(){
+  $("#title").value = S.title; $("#sub").value = S.sub; $("#words").value = S.words; $("#count").value = S.count; $("#perPage").value = S.perPage;
+  $("#paper").value = S.paper; $("#header").value = S.header; $("#free").checked = S.free; $("#freeText").value = S.freeText; $("#showNum").checked = S.showNum;
+  $("#footer").value = S.footer; $("#style").value = S.style; $("#font").value = S.font; $("#starter").value = "";
+  setSeg("mode", S.mode); setSeg("size", S.size);
+  document.querySelectorAll("#colors button").forEach(b => b.classList.toggle("on", b.dataset.v === S.color));
+  $("#wordsBox").hidden = S.mode === "numbers";
+  document.querySelectorAll("#size button").forEach(b => b.disabled = S.mode === "numbers" && b.dataset.v !== "5");
+  $("#header").disabled = S.mode === "numbers"; $("#header").placeholder = S.size === 5 ? "BINGO" : S.size === 4 ? "4 letters" : "3 letters";
+  $("#free").disabled = S.size % 2 === 0; $("#freeBox").hidden = !hasFree();
+  renderThumbs();
+}
+function renderThumbs(){ $("#thumbs").innerHTML = IMAGES.map((im, i) => `<div><img src="${im.src}" alt=""><button data-i="${i}" aria-label="Remove picture">×</button></div>`).join(""); }
+let timer; const later = () => { clearTimeout(timer); timer = setTimeout(render, 220); };
+const TYPED = new Set(["words", "title", "sub", "footer", "freeText", "header", "count"]);
+function bind(id, key, conv){ $("#" + id).addEventListener("input", e => { S[key] = conv ? conv(e.target) : e.target.value; if (key === "words") S.called = []; if (TYPED.has(key)) later(); else { syncControls(); render(); } }); }
+function applyStarter(i){
+  const [name, emoji, title, words] = STARTERS[i];
+  S.words = words.split("|").join("\n"); S.title = title; S.mode = "words"; S.freeText = "FREE"; S.called = [];
+  if (S.size === 5) S.header = "BINGO";
+  syncControls(); render();
+}
+function init(){
+  let first = true; try { first = !localStorage.getItem(KEY); } catch (e) {}
+  load();
+  $("#starter").innerHTML = `<option value="">Choose a list...</option>` + STARTERS.map((s, i) => `<option value="${i}">${s[1]} ${esc(s[0])}</option>`).join("");
+  $("#colors").innerHTML = COLORS.map(c => `<button data-v="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join("");
+  bind("title", "title"); bind("sub", "sub"); bind("words", "words"); bind("footer", "footer"); bind("freeText", "freeText");
+  bind("header", "header", t => t.value.toUpperCase());
+  bind("count", "count", t => Math.max(1, Math.min(500, parseInt(t.value || "1", 10) || 1)));
+  bind("perPage", "perPage", t => +t.value); bind("paper", "paper"); bind("style", "style"); bind("font", "font");
+  $("#free").addEventListener("change", e => { S.free = e.target.checked; syncControls(); render(); });
+  $("#showNum").addEventListener("change", e => { S.showNum = e.target.checked; render(); });
+  $("#starter").addEventListener("change", e => { if (e.target.value !== "") applyStarter(+e.target.value); });
+  $("#mode").addEventListener("click", e => { const v = e.target.dataset.v; if (!v) return; S.mode = v; if (v === "numbers"){ S.size = 5; if (!S.title) S.title = "Bingo"; } S.called = []; syncControls(); render(); });
+  $("#size").addEventListener("click", e => { const v = e.target.dataset.v; if (!v || e.target.disabled) return; S.size = +v;
+    const d = {3:"", 4:"", 5:"BINGO"}; if (Array.from(S.header || "").length !== S.size) S.header = d[S.size]; S.called = []; syncControls(); render(); });
+  $("#colors").addEventListener("click", e => { const v = e.target.dataset.v; if (!v) return; S.color = v; syncControls(); render(); });
+  $("#reshuffle").addEventListener("click", () => { S.seed = newSeed(); S.called = []; render(); });
+  $("#imgs").addEventListener("change", async e => {
+    for (const f of e.target.files){ const src = await shrink(f); IMAGES.push({src, label:""}); }
+    e.target.value = ""; renderThumbs(); render();
+  });
+  $("#thumbs").addEventListener("click", e => { const i = e.target.dataset.i; if (i === undefined) return; IMAGES.splice(+i, 1); renderThumbs(); render(); });
+  const doPrint = cls => { document.body.classList.remove("p-cards", "p-extras"); if (cls) document.body.classList.add(cls); document.title = S.title || "Bingo cards"; window.print(); };
+  $("#printAll").addEventListener("click", () => doPrint("")); $("#printCards").addEventListener("click", () => doPrint("p-cards")); $("#printExtras").addEventListener("click", () => doPrint("p-extras"));
+  $("#exportBtn").addEventListener("click", () => download((S.title || "bingo").replace(/[^\w]+/g, "-") + ".bingo.json", JSON.stringify({app:"bingo-card-maker", v:1, settings:S, images:IMAGES})));
+  $("#importBtn").addEventListener("click", () => $("#importFile").click());
+  $("#importFile").addEventListener("change", async e => { const f = e.target.files[0]; if (!f) return;
+    try { const d = JSON.parse(await f.text()); if (d && d.settings){ S = Object.assign(S, d.settings); IMAGES = Array.isArray(d.images) ? d.images : []; syncControls(); render(); } } catch (err) { $("#status").innerHTML = `<span class="warn">That file could not be opened.</span>`; }
+    e.target.value = ""; });
+  $("#tabMake").addEventListener("click", () => tab("make")); $("#tabPlay").addEventListener("click", () => tab("play"));
+  $("#drawBtn").addEventListener("click", drawNext); $("#resetBtn").addEventListener("click", () => { S.called = []; save(); renderPlay(); });
+  $("#checkBtn").addEventListener("click", checkCard); $("#checkNum").addEventListener("keydown", e => { if (e.key === "Enter") checkCard(); });
+  window.addEventListener("resize", fitZoom);
+  if (first || (!S.words && S.mode === "words")){ S.starter = 0; applyStarter(0); } else { syncControls(); render(); }
+}
+function shrink(file){ // keep pictures small so pages print fast
+  return new Promise(res => { const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => {
+      const max = 700, k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL("image/jpeg", .86)); };
+    img.onerror = () => res(r.result); img.src = r.result; }; r.readAsDataURL(file); });
+}
+
+// ---------- play ----------
+function tab(which){ $("#make").hidden = which !== "make"; $("#play").hidden = which !== "play"; $("#tabMake").classList.toggle("on", which === "make"); $("#tabPlay").classList.toggle("on", which === "play"); if (which === "play") renderPlay(); else fitZoom(); }
+const callLabel = it => it.img ? `<img src="${it.img}" alt="">` + (it.t ? `<div>${esc(it.t)}</div>` : "") : (S.mode === "numbers" ? "BINGO"[Math.floor((it.n - 1) / 15)] + " " + it.n : esc(it.t));
+function renderPlay(){
+  S.called = (S.called || []).filter(i => i < ITEMS.length);
+  $("#playTitle").textContent = S.title || "Bingo";
+  const last = S.called[S.called.length - 1];
+  $("#nowCall").innerHTML = last === undefined ? "Ready?" : callLabel(ITEMS[last]);
+  $("#callCount").textContent = `${S.called.length} called · ${ITEMS.length - S.called.length} left`;
+  $("#drawBtn").disabled = S.called.length >= ITEMS.length || !ITEMS.length;
+  $("#calledList").innerHTML = S.called.map((i, n) => `<span class="${n === S.called.length - 1 ? "last" : ""}">${ITEMS[i].img ? "Picture " + (i + 1) : callLabel(ITEMS[i])}</span>`).join("");
+  $("#checkOut").innerHTML = "";
+}
+function drawNext(){ const left = ITEMS.map((_, i) => i).filter(i => !S.called.includes(i)); if (!left.length) return; S.called.push(left[Math.floor(Math.random() * left.length)]); save(); renderPlay(); }
+function checkCard(){
+  const n = parseInt($("#checkNum").value, 10), out = $("#checkOut");
+  if (!n || n < 1 || n > CARDS.length){ out.innerHTML = `<p class="warn">Type a card number from 1 to ${CARDS.length}.</p>`; return; }
+  const card = CARDS[n - 1], N = S.size, called = new Set(S.called);
+  const hit = card.map(i => i < 0 || called.has(i));
+  const lines = []; for (let r = 0; r < N; r++){ lines.push(Array.from({length:N}, (_, c) => r * N + c)); lines.push(Array.from({length:N}, (_, c) => c * N + r)); }
+  lines.push(Array.from({length:N}, (_, i) => i * N + i)); lines.push(Array.from({length:N}, (_, i) => i * N + (N - 1 - i)));
+  const wins = lines.filter(l => l.every(i => hit[i])).length, full = hit.every(Boolean);
+  out.innerHTML = `<p class="${wins ? "ok" : "warn"}">Card ${n}: ${full ? "FULL CARD. Every square is covered." : wins ? "BINGO! " + wins + " complete line" + (wins > 1 ? "s" : "") + "." : "No bingo yet. Squares in green have been called."}</p>
+  <div class="mini" style="--n:${N}">${card.map((i, j) => `<div class="${hit[j] ? "hit" : ""}">${i < 0 ? "★" : ITEMS[i].img ? `<img src="${ITEMS[i].img}" alt="">` : callLabel(ITEMS[i])}</div>`).join("")}</div>`;
+}
+init();
+</script>
+</body>
+</html>
