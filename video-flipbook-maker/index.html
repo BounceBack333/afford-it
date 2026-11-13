@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Video Flipbook Maker</title>
+<style>
+*{box-sizing:border-box} html,body{margin:0} body{font-family:-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif;color:#1d1d1b;background:#eef1f4;font-size:16px;line-height:1.4}
+header{background:#17324d;color:#fff;padding:18px 16px;text-align:center} header h1{font-family:Georgia,"Times New Roman",serif;font-weight:900;font-size:30px;margin:0} header p{margin:6px 0 0;opacity:.9;font-size:15px}
+.wrap{max-width:1100px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start} @media(max-width:860px){.wrap{grid-template-columns:1fr}} .wrap>*{min-width:0}
+.panel{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px #0001} .panel h2{font-family:Georgia,serif;font-size:21px;margin:0 0 10px} .panel h2 span{display:inline-flex;width:30px;height:30px;border-radius:50%;background:#b3282d;color:#fff;align-items:center;justify-content:center;font-size:17px;margin-right:8px}
+label{display:block;font-weight:700;font-size:14px;margin:14px 0 5px} label small{font-weight:400;color:#555}
+input[type=text]{width:100%;font:inherit;padding:11px 12px;border:2px solid #c9d2dc;border-radius:10px} input[type=range]{width:100%}
+.seg{display:flex;border:2px solid #c9d2dc;border-radius:10px;overflow:hidden} .seg button{flex:1;font:inherit;font-weight:600;font-size:14px;padding:10px 4px;border:0;background:#fff;cursor:pointer;color:#1d1d1b} .seg button.on{background:#17324d;color:#fff}
+.btn{display:block;width:100%;font:inherit;font-weight:800;font-size:17px;padding:14px;border:0;border-radius:12px;background:#b3282d;color:#fff;cursor:pointer;margin-top:14px;text-align:center} .btn.alt{background:#fff;color:#17324d;border:2px solid #17324d;font-size:15px;padding:11px} .btn:disabled{opacity:.45;cursor:default}
+.drop{border:2.5px dashed #9fb1c4;border-radius:14px;padding:22px 14px;text-align:center;background:#f5f7fa} .drop b{font-size:17px}
+video,#flip{width:100%;border-radius:10px;background:#000;display:block} #flipwrap{position:relative;background:#222;border-radius:10px;overflow:hidden}
+.msg{font-size:14px;margin-top:8px;min-height:20px} .msg.err{color:#b3282d;font-weight:600} .tip{font-size:13.5px;color:#444;margin-top:12px;background:#f5f7fa;border-radius:10px;padding:10px 12px}
+.sw{display:flex;gap:8px;flex-wrap:wrap} .sw button{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #c9d2dc;cursor:pointer} .sw button.on{box-shadow:0 0 0 3px #17324d}
+#bar{height:10px;background:#dde3ea;border-radius:5px;overflow:hidden;margin-top:10px;display:none} #bar i{display:block;height:100%;width:0;background:#b3282d}
+#sheetprev{width:100%;border:1px solid #c9d2dc;border-radius:6px;margin-top:12px;display:none}
+.hide{display:none!important}
+@media print{header,.wrap{display:none!important} #printzone{display:block!important} #printzone img{width:100%;display:block;page-break-after:always} @page{margin:0}}
+#printzone{display:none}
+</style></head><body>
+<header><h1>Video Flipbook Maker</h1><p>Turn a few seconds of your own video into a flipbook you print, cut and flip.</p></header>
+<div class="wrap">
+ <div class="panel"><h2><span>1</span>Pick your moment</h2>
+  <div class="drop"><b>Choose a video from your phone or computer</b><br><input type="file" id="file" accept="video/*" style="margin-top:10px;max-width:100%"><br><button class="btn alt" id="sample" style="width:auto;display:inline-block;margin-top:10px">Or try the sample</button></div>
+  <div class="msg" id="vmsg"></div>
+  <div id="trim" class="hide"><video id="v" playsinline muted preload="auto"></video>
+   <label>Start <small id="sLab"></small></label><input type="range" id="start" min="0" max="1" step="0.05" value="0">
+   <label>Length <small id="lLab"></small></label><input type="range" id="len" min="1" max="6" step="0.25" value="3">
+   <div class="tip">Short clips with one clear movement work best: a jump, a kiss, a swing, a goal.</div></div>
+  <h2 style="margin-top:22px"><span>2</span>Shape the book</h2>
+  <label>Pages <small>more pages, smoother motion</small></label><div class="seg" id="pages"><button data-v="24">24</button><button data-v="36" class="on">36</button><button data-v="48">48</button><button data-v="60">60</button></div>
+  <label>Motion</label><div class="seg" id="mode"><button data-v="fwd" class="on">Forward</button><button data-v="boom">Forward and back</button></div>
+  <label>Picture</label><div class="seg" id="fit"><button data-v="cover" class="on">Fill the page</button><button data-v="contain">Show the whole picture</button></div>
+  <div id="focus"><label>Slide the picture <small>left to right, then up and down</small></label><input type="range" id="fx" min="0" max="1" step="0.01" value="0.5"><input type="range" id="fy" min="0" max="1" step="0.01" value="0.5"></div>
+ </div>
+ <div class="panel"><h2><span>3</span>Make it a keepsake</h2>
+  <label>Cover title</label><input type="text" id="title" maxlength="34" placeholder="Bailey's Big Jump">
+  <label>Back cover note <small>optional</small></label><input type="text" id="note" maxlength="60" placeholder="Summer 2026. Love, Mom">
+  <label>Cover color</label><div class="sw" id="color"></div>
+  <label>Paper</label><div class="seg" id="paper"><button data-v="letter" class="on">US Letter</button><button data-v="a4">A4</button></div>
+  <button class="btn" id="make" disabled>Make my flipbook</button><div id="bar"><i></i></div><div class="msg" id="msg"></div>
+  <div id="result" class="hide"><div id="flipwrap"><canvas id="flip" width="590" height="450"></canvas></div>
+   <div class="msg" id="info"></div>
+   <button class="btn" id="pdf">Download the PDF</button><button class="btn alt" id="print">Print now</button>
+   <img id="sheetprev" alt="First sheet preview">
+   <div class="tip"><b>Print at 100% (actual size)</b> on card stock or heavy paper. Each sheet has a one-inch check line. Your video never leaves this device.</div></div>
+ </div>
+</div><div id="printzone"></div>
+<script>
+const $=s=>document.querySelector(s), DPI=200, CW=3.7, CH=2.25, BIND=0.75, COLS=2, ROWS=4, PER=COLS*ROWS, FW=590, FH=450;
+const PAPER={letter:[8.5,11],a4:[8.27,11.69]}, COLORS=['#17324d','#b3282d','#1f5c43','#6b3fa0','#c2571a','#1d1d1b','#d6336c','#0f6e7c'];
+const ST={pages:36,mode:'fwd',fit:'cover',paper:'letter',color:COLORS[0]}; let src=null, frames=[], thumbs=[], sheets=[], flipT=null, busy=false;
+try{Object.assign(ST,JSON.parse(localStorage.getItem('flipbook1')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('flipbook1',JSON.stringify(ST))}catch(e){}};
+const v=$('#v');
+// ---------- controls
+function seg(id,key,cb){document.querySelectorAll(id+' button').forEach(b=>{b.classList.toggle('on',String(ST[key])===b.dataset.v);b.onclick=()=>{ST[key]=isNaN(+b.dataset.v)?b.dataset.v:+b.dataset.v;document.querySelectorAll(id+' button').forEach(x=>x.classList.toggle('on',x===b));save();cb&&cb()}})}
+seg('#pages','pages');seg('#mode','mode');seg('#paper','paper');seg('#fit','fit',()=>$('#focus').classList.toggle('hide',ST.fit!=='cover'));$('#focus').classList.toggle('hide',ST.fit!=='cover');
+$('#color').innerHTML=COLORS.map(c=>`<button style="background:${c}" data-c="${c}" class="${c===ST.color?'on':''}" aria-label="Cover color"></button>`).join('');
+document.querySelectorAll('#color button').forEach(b=>b.onclick=()=>{ST.color=b.dataset.c;document.querySelectorAll('#color button').forEach(x=>x.classList.toggle('on',x===b));save()});
+function labels(){const d=src?src.dur:0, s=+$('#start').value, l=Math.min(+$('#len').value,Math.max(.5,d-s));$('#sLab').textContent=s.toFixed(1)+' s of '+d.toFixed(1)+' s';$('#lLab').textContent=l.toFixed(2)+' s';return {s,l}}
+$('#start').oninput=()=>{const {s}=labels(); if(src&&src.kind==='video'){try{v.currentTime=s}catch(e){}}};$('#len').oninput=labels;
+// ---------- sources
+function sampleDraw(c,w,h,t){const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#8fd3ff');g.addColorStop(1,'#e8f7ff');c.fillStyle=g;c.fillRect(0,0,w,h);c.fillStyle='#ffd54a';c.beginPath();c.arc(w*.84,h*.2,h*.1,0,7);c.fill();
+ c.fillStyle='#4caf6a';c.beginPath();c.moveTo(0,h);c.lineTo(0,h*.78);c.quadraticCurveTo(w*.5,h*.62,w,h*.8);c.lineTo(w,h);c.fill();c.fillStyle='#3d8bd9';c.fillRect(w*.62,h*.8,w*.38,h*.2);
+ const p=t/3, x=w*(.08+.62*p), jump=Math.max(0,Math.sin(Math.PI*Math.min(1,p*1.25))), y=h*.72-jump*h*.42+(p>.8?(p-.8)*h*.9:0);
+ c.fillStyle='#00000022';c.beginPath();c.ellipse(x,h*.79,w*.07*(1-jump*.5),h*.015,0,0,7);c.fill();
+ c.save();c.translate(x,y);c.rotate((p-.4)*.9);c.fillStyle='#c98a3c';c.beginPath();c.ellipse(0,0,w*.075,h*.055,0,0,7);c.fill();c.beginPath();c.arc(w*.07,-h*.04,h*.045,0,7);c.fill();c.fillStyle='#7a4f1d';c.beginPath();c.ellipse(w*.085,-h*.085,w*.012,h*.035,.5,0,7);c.fill();
+ c.fillRect(-w*.05,h*.03,w*.012,h*.06);c.fillRect(w*.03,h*.03,w*.012,h*.06);c.beginPath();c.moveTo(-w*.07,-h*.01);c.quadraticCurveTo(-w*.11,-h*.08,-w*.09,-h*.1);c.lineWidth=h*.012;c.strokeStyle='#7a4f1d';c.stroke();c.fillStyle='#1d1d1b';c.beginPath();c.arc(w*.085,-h*.045,h*.007,0,7);c.fill();c.restore();
+ if(p>.82){c.fillStyle='#ffffffcc';for(let i=0;i<7;i++){c.beginPath();c.arc(w*(.7+i*.03),h*(.8-(p-.82)*1.6*Math.abs(Math.sin(i*2.1))),h*.012,0,7);c.fill()}}}
+$('#sample').onclick=()=>{src={kind:'sample',dur:3,w:FW,h:FH};$('#trim').classList.add('hide');$('#vmsg').className='msg';$('#vmsg').textContent='Sample loaded: a dog jumping into a pool.';$('#make').disabled=false;if(!$('#title').value)$('#title').value="Bailey's Big Jump"};
+$('#file').onchange=e=>{const f=e.target.files[0]; if(!f) return; $('#vmsg').className='msg';$('#vmsg').textContent='Opening your video…';$('#make').disabled=true; if(src&&src.url)URL.revokeObjectURL(src.url); const url=URL.createObjectURL(f); let ok=false;
+ const fail=()=>{if(ok)return;$('#vmsg').className='msg err';$('#vmsg').innerHTML="This browser can't read that video. On an iPhone or iPad, open this page in Safari and choose the video from Photos. On a computer, try Safari, Chrome or Edge.";$('#trim').classList.add('hide')};
+ v.onerror=fail; v.onloadedmetadata=()=>{ if(!v.videoWidth||!isFinite(v.duration)){fail();return} ok=true; src={kind:'video',dur:v.duration,w:v.videoWidth,h:v.videoHeight,url}; $('#trim').classList.remove('hide'); $('#start').max=Math.max(0,v.duration-1).toFixed(2); $('#start').value=0; $('#len').max=Math.min(6,Math.max(1,v.duration)).toFixed(2); $('#len').value=Math.min(3,v.duration); labels(); $('#vmsg').textContent='Video ready. Slide Start to the moment you want.'; $('#make').disabled=false; try{v.currentTime=0.01}catch(e){} };
+ setTimeout(()=>{if(!ok&&!v.videoWidth)fail()},9000); v.src=url; v.load() };
+// ---------- frame capture
+function seekTo(t){return new Promise(res=>{let done=false;const fin=()=>{if(done)return;done=true;v.removeEventListener('seeked',on);res()};const on=()=>{if(v.requestVideoFrameCallback){v.requestVideoFrameCallback(()=>fin());setTimeout(fin,300)}else setTimeout(fin,80)};v.addEventListener('seeked',on);try{v.currentTime=Math.max(0,Math.min(t,v.duration-0.04))}catch(e){fin()}setTimeout(fin,3000)})}
+function drawFit(c,img,iw,ih){ const fx=+$('#fx').value, fy=+$('#fy').value; if(ST.fit==='cover'){const k=Math.max(FW/iw,FH/ih),w=iw*k,h=ih*k;c.drawImage(img,-(w-FW)*fx,-(h-FH)*fy,w,h)} else {c.fillStyle='#111';c.fillRect(0,0,FW,FH);const k=Math.min(FW/iw,FH/ih),w=iw*k,h=ih*k;c.drawImage(img,(FW-w)/2,(FH-h)/2,w,h)} }
+const blobOf=(cv,q=.88)=>new Promise(r=>cv.toBlob(r,'image/jpeg',q));
+function order(n){ if(ST.mode==='fwd') return [...Array(n)].map((_,i)=>i/(n-1)); const h=Math.ceil(n/2); return [...Array(n)].map((_,i)=>i<h?i/(h-1):(n-1-i)/(n-h)) }
+async function capture(){ const n=ST.pages,{s,l}=src.kind==='video'?labels():{s:0,l:3}; const cv=document.createElement('canvas');cv.width=FW;cv.height=FH;const c=cv.getContext('2d'); frames=[];thumbs=[];
+ if(src.kind==='video'){try{await v.play();v.pause()}catch(e){}}
+ const pos=order(n);
+ for(let i=0;i<n;i++){ const t=s+pos[i]*l; if(src.kind==='video'){await seekTo(t);drawFit(c,v,src.w,src.h)} else {const t2=document.createElement('canvas');t2.width=FW;t2.height=FH;sampleDraw(t2.getContext('2d'),FW,FH,pos[i]*3);drawFit(c,t2,FW,FH)}
+  frames.push(await blobOf(cv)); const th=document.createElement('canvas');th.width=295;th.height=225;th.getContext('2d').drawImage(cv,0,0,295,225);thumbs.push(th); prog((i+1)/n*.6,'Catching frame '+(i+1)+' of '+n) } }
+// ---------- sheets
+function cardList(){ const L=[{k:'cover'}]; frames.forEach((b,i)=>L.push({k:'frame',i})); L.push({k:'back'}); const S=Math.ceil(L.length/PER); while(L.length<S*PER)L.push({k:'spare'}); return {L,S} }
+const cardAt=(S,s,p)=>p*S+s;   // stack the sheets, cut once, and pile 1..8 stacks back in page order
+function fitText(c,txt,maxW,size,font){ do{c.font=`${font} ${size}px Georgia,serif`;if(c.measureText(txt).width<=maxW)break;size-=2}while(size>14);return size }
+async function drawCard(c,card,x,y,num,total,pile){ const w=CW*DPI,h=CH*DPI,b=BIND*DPI; c.save();c.translate(x,y);
+ if(card.k==='frame'){ const bm=await createImageBitmap(frames[card.i]); c.drawImage(bm,b,0,w-b,h); bm.close&&bm.close(); c.fillStyle='#f3f1ea';c.fillRect(0,0,b,h); }
+ else if(card.k==='cover'||card.k==='back'){ c.fillStyle=ST.color;c.fillRect(0,0,w,h); c.fillStyle='#00000030';c.fillRect(0,0,b,h); c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';
+  if(card.k==='cover'){ const t=($('#title').value.trim()||'My Flipbook'); const words=t.split(' '); let l1=t,l2=''; if(c.measureText&&t.length>16&&words.length>1){const m=Math.ceil(words.length/2);l1=words.slice(0,m).join(' ');l2=words.slice(m).join(' ')}
+   const sz=Math.min(fitText(c,l1,(w-b)*.86,62,'bold'),fitText(c,l2||l1,(w-b)*.86,62,'bold')); c.font=`bold ${sz}px Georgia,serif`; if(l2){c.fillText(l1,b+(w-b)/2,h*.38);c.fillText(l2,b+(w-b)/2,h*.38+sz*1.12)}else c.fillText(l1,b+(w-b)/2,h*.46);
+   c.font='600 19px Arial';c.globalAlpha=.85;c.fillText('A  F L I P B O O K',b+(w-b)/2,h*.86);c.globalAlpha=1 }
+  else { const t=$('#note').value.trim(); if(t){const sz=fitText(c,t,(w-b)*.86,34,'italic');c.font=`italic ${sz}px Georgia,serif`;c.fillText(t,b+(w-b)/2,h*.46)} c.font='600 19px Arial';c.globalAlpha=.85;c.fillText('T H E   E N D',b+(w-b)/2,h*.86);c.globalAlpha=1 } }
+ else { c.fillStyle='#faf9f5';c.fillRect(0,0,w,h);c.fillStyle='#b9b5a8';c.font='600 20px Arial';c.textAlign='center';c.textBaseline='middle';c.fillText('SPARE',b+(w-b)/2,h/2) }
+ // binding strip marks
+ c.fillStyle=card.k==='frame'||card.k==='spare'?'#8a8679':'#ffffffcc';c.textAlign='center';c.textBaseline='middle';c.font='bold 30px Arial';c.fillText(card.k==='spare'?'·':String(num),b/2,h/2);c.font='600 13px Arial';c.fillText('of '+total,b/2,h/2+26);c.fillText('pile '+pile,b/2,22);
+ c.strokeStyle=card.k==='frame'||card.k==='spare'?'#c9c5b8':'#ffffff66';c.lineWidth=2;c.setLineDash([6,6]);c.beginPath();c.moveTo(b,0);c.lineTo(b,h);c.stroke();c.setLineDash([]);c.restore() }
+async function buildSheets(){ const [pw,ph]=PAPER[ST.paper], W=Math.round(pw*DPI), H=Math.round(ph*DPI), {L,S}=cardList(), total=frames.length+2; sheets=[]; const x0=Math.round((W-COLS*CW*DPI)/2), y0=Math.round((H-ROWS*CH*DPI)/2);
+ for(let s=0;s<S;s++){ const cv=document.createElement('canvas');cv.width=W;cv.height=H;const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,W,H);
+  for(let p=0;p<PER;p++){ const idx=cardAt(S,s,p), card=L[idx]; await drawCard(c,card,x0+(p%COLS)*CW*DPI,y0+Math.floor(p/COLS)*CH*DPI,idx+1,total,p+1) }
+  c.strokeStyle='#777';c.lineWidth=1.5; for(let i=0;i<=COLS;i++){const x=x0+i*CW*DPI;c.beginPath();c.moveTo(x,y0-46);c.lineTo(x,y0+ROWS*CH*DPI+46);c.stroke()} for(let j=0;j<=ROWS;j++){const y=y0+j*CH*DPI;c.beginPath();c.moveTo(x0-46,y);c.lineTo(x0+COLS*CW*DPI+46,y);c.stroke()}
+  c.fillStyle='#555';c.font='600 22px Arial';c.textAlign='left';c.textBaseline='alphabetic';c.fillText(`Sheet ${s+1} of ${S}   ·   ${($('#title').value.trim()||'My Flipbook')}   ·   print at 100%`,x0,y0-64);
+  const by=y0+ROWS*CH*DPI+78;c.fillRect(x0,by,DPI,4);c.fillRect(x0,by-10,3,24);c.fillRect(x0+DPI-3,by-10,3,24);c.font='600 20px Arial';c.fillText('this line is exactly 1 inch (2.54 cm)',x0+DPI+16,by+9);
+  sheets.push(await blobOf(cv,.9)); prog(.6+(s+1)/S*.4,'Laying out sheet '+(s+1)+' of '+S); cv.width=cv.height=1 }
+ return {W,H,S} }
+// ---------- pdf
+async function makePDF(){ const [pw,ph]=PAPER[ST.paper], Wp=(pw*72).toFixed(2), Hp=(ph*72).toFixed(2), W=Math.round(pw*DPI), H=Math.round(ph*DPI), enc=s=>new TextEncoder().encode(s); const parts=[],offs=[]; let pos=0; const put=u=>{parts.push(u);pos+=u.length}, obj=(n,body)=>{offs[n]=pos;put(enc(`${n} 0 obj\n${body}\nendobj\n`))};
+ put(enc('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'.replace(/[\x80-\xff]/g,'?'))); const n=sheets.length, kids=[...Array(n)].map((_,i)=>`${3+i*3} 0 R`).join(' ');
+ obj(1,'<< /Type /Catalog /Pages 2 0 R >>'); obj(2,`<< /Type /Pages /Kids [${kids}] /Count ${n} >>`);
+ for(let i=0;i<n;i++){ const pg=3+i*3, ct=pg+1, im=pg+2, bytes=new Uint8Array(await sheets[i].arrayBuffer()), content=`q ${Wp} 0 0 ${Hp} 0 0 cm /Im0 Do Q`;
+  obj(pg,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${Wp} ${Hp}] /Resources << /XObject << /Im0 ${im} 0 R >> >> /Contents ${ct} 0 R >>`); obj(ct,`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  offs[im]=pos; put(enc(`${im} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`)); put(bytes); put(enc('\nendstream\nendobj\n')) }
+ const xref=pos, count=3+n*3; let x=`xref\n0 ${count}\n0000000000 65535 f \n`; for(let i=1;i<count;i++)x+=String(offs[i]).padStart(10,'0')+' 00000 n \n'; put(enc(x+`trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`));
+ return new Blob(parts,{type:'application/pdf'}) }
+// ---------- flow
+function prog(k,t){$('#bar').style.display='block';$('#bar i').style.width=Math.round(k*100)+'%';$('#msg').className='msg';$('#msg').textContent=t}
+function playFlip(){ clearInterval(flipT); const c=$('#flip').getContext('2d'); let i=0,hold=0; flipT=setInterval(()=>{ if(!thumbs[i]){i=0;return} c.drawImage(thumbs[i],0,0,590,450); if(i===thumbs.length-1){if(++hold>8){hold=0;i=0}}else i++ },1000/14) }
+$('#make').onclick=async()=>{ if(busy||!src) return; busy=true;clearInterval(flipT);$('#make').disabled=true;$('#result').classList.add('hide');
+ try{ await capture(); const r=await buildSheets(); $('#bar').style.display='none'; $('#msg').textContent=''; $('#result').classList.remove('hide'); playFlip();
+  $('#info').textContent=`${frames.length} pages plus covers on ${r.S} sheets. Stack the sheets in order, cut along the lines, then stack pile 1 on top through pile 8.`; $('#sheetprev').src=URL.createObjectURL(sheets[0]); $('#sheetprev').style.display='block'; window.__done={pages:frames.length,sheets:r.S,W:r.W,H:r.H} }
+ catch(e){ $('#msg').className='msg err'; $('#msg').textContent='Something went wrong making the book. Try a shorter clip or fewer pages.'; console.error(e) }
+ busy=false;$('#make').disabled=false };
+$('#pdf').onclick=async()=>{ const b=await makePDF(); window.__pdf=b; const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(($('#title').value.trim()||'My Flipbook').replace(/[^\w ]+/g,'').replace(/ +/g,'-')||'Flipbook')+'-Flipbook.pdf'; document.body.appendChild(a); a.click(); a.remove() };
+$('#print').onclick=()=>{ $('#printzone').innerHTML=sheets.map(b=>`<img src="${URL.createObjectURL(b)}">`).join(''); setTimeout(()=>window.print(),300) };
+window.__t={cardList,cardAt,order,PER,ST};
+</script></body></html>
